@@ -1,10 +1,114 @@
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
+
+// enum UserRole {
+//   ADMIN
+//   PRO
+// }
+
+// enum LeadStatus {
+//   NEW
+//   ASSIGNED
+//   NOTIFIED
+//   CONVERTED
+// }
+
+// // ─── Auth Layer ──────────────────────────────────────────────────────────────
+// // Credentials only. Never holds business or profile data.
+// model User {
+//   id               String      @id @default(uuid())
+//   email            String      @unique
+//   passwordHash     String
+//   role             UserRole    @default(PRO)
+//   resetToken       String?
+//   resetTokenExpiry DateTime?
+//   createdAt        DateTime    @default(now())
+//   proProfile       ProProfile?
+// }
+
+// // ─── Business Layer ───────────────────────────────────────────────────────────
+// // 1-to-1 with User (PRO role). Holds all operational profile data.
+// model ProProfile {
+//   id           String        @id @default(uuid())
+//   userId       String        @unique
+//   user         User          @relation(fields: [userId], references: [id])
+//   firstName    String
+//   lastName     String
+//   phone        String
+//   city         String
+//   profession   String
+//   pricePerLead Int           @default(0)
+//   isActive     Boolean       @default(true)
+//   adminLocked  Boolean       @default(false)
+//   createdAt    DateTime      @default(now())
+//   leads        Lead[]
+//   landingPages LandingPage[]
+//   calls        Call[]
+// }
+
+// // ─── Operational Layer ────────────────────────────────────────────────────────
+// // All inbound leads (from forms). Matched to a ProProfile by city + profession.
+// model Lead {
+//   id          String     @id @default(uuid())
+//   clientName  String
+//   clientPhone String
+//   city        String
+//   profession  String
+//   status      LeadStatus @default(NEW)
+//   proId       String?
+//   pro         ProProfile? @relation(fields: [proId], references: [id])
+//   createdAt   DateTime   @default(now())
+// }
+
+// model LandingPage {
+//   id            String     @id @default(uuid())
+//   city          String
+//   profession    String
+//   twilioNumber  String
+//   mainTitle     String
+//   subTitle      String
+//   description   String     @db.Text
+//   heroImage     String
+//   profileImage  String?
+//   galleryImages String     @db.Text
+//   proId         String
+//   pro           ProProfile @relation(fields: [proId], references: [id])
+//   createdAt     DateTime   @default(now())
+//   updatedAt     DateTime   @updatedAt
+
+//   @@unique([city, profession])
+// }
+
+// model Call {
+//   id               String      @id @default(uuid())
+//   callerPhone      String
+//   destinationPhone String
+//   duration         Int         @default(0)
+//   status           String
+//   recordingUrl     String?
+//   proId            String?
+//   pro              ProProfile? @relation(fields: [proId], references: [id])
+//   createdAt        DateTime    @default(now())
+// }
+
+
+
+
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum UserRole {
@@ -19,8 +123,7 @@ enum LeadStatus {
   CONVERTED
 }
 
-// ─── Auth Layer ──────────────────────────────────────────────────────────────
-// Credentials only. Never holds business or profile data.
+// ─── Auth Layer ───────────────────────────────────────────────────────────────
 model User {
   id               String      @id @default(uuid())
   email            String      @unique
@@ -33,7 +136,6 @@ model User {
 }
 
 // ─── Business Layer ───────────────────────────────────────────────────────────
-// 1-to-1 with User (PRO role). Holds all operational profile data.
 model ProProfile {
   id           String        @id @default(uuid())
   userId       String        @unique
@@ -53,17 +155,16 @@ model ProProfile {
 }
 
 // ─── Operational Layer ────────────────────────────────────────────────────────
-// All inbound leads (from forms). Matched to a ProProfile by city + profession.
 model Lead {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   clientName  String
   clientPhone String
   city        String
   profession  String
-  status      LeadStatus @default(NEW)
+  status      LeadStatus  @default(NEW)
   proId       String?
   pro         ProProfile? @relation(fields: [proId], references: [id])
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime    @default(now())
 }
 
 model LandingPage {
@@ -73,10 +174,10 @@ model LandingPage {
   twilioNumber  String
   mainTitle     String
   subTitle      String
-  description   String     @db.Text
+  description   String
   heroImage     String
   profileImage  String?
-  galleryImages String     @db.Text
+  galleryImages String
   proId         String
   pro           ProProfile @relation(fields: [proId], references: [id])
   createdAt     DateTime   @default(now())

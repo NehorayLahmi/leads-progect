@@ -5,7 +5,7 @@
     "lib": ["ES2020"],
     "types": ["node"],
     "outDir": "./dist",
-    //"rootDir": "./src",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -17,9 +17,7 @@
   },
   
   "include": [
-    "src/**/*",
-    "prisma.config.ts"  //1 הוספת קובץ הקונפיגורציה של פריזמה
-  ],
+    "src/**/*", "tsconfig.json" ],
   "exclude": ["node_modules", "dist"]
 
 }

@@ -101,7 +101,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
-    res.cookie("token", token, {
+    res.cookie("auth_token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "none",

@@ -10,7 +10,6 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -29,8 +28,7 @@ enum LeadStatus {
   CONVERTED
 }
 
-// ─── Auth Layer ──────────────────────────────────────────────────────────────
-// Credentials only. Never holds business or profile data.
+// ─── Auth Layer ───────────────────────────────────────────────────────────────
 model User {
   id               String      @id @default(uuid())
   email            String      @unique
@@ -43,7 +41,6 @@ model User {
 }
 
 // ─── Business Layer ───────────────────────────────────────────────────────────
-// 1-to-1 with User (PRO role). Holds all operational profile data.
 model ProProfile {
   id           String        @id @default(uuid())
   userId       String        @unique
@@ -63,17 +60,16 @@ model ProProfile {
 }
 
 // ─── Operational Layer ────────────────────────────────────────────────────────
-// All inbound leads (from forms). Matched to a ProProfile by city + profession.
 model Lead {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   clientName  String
   clientPhone String
   city        String
   profession  String
-  status      LeadStatus @default(NEW)
+  status      LeadStatus  @default(NEW)
   proId       String?
   pro         ProProfile? @relation(fields: [proId], references: [id])
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime    @default(now())
 }
 
 model LandingPage {
@@ -83,10 +79,10 @@ model LandingPage {
   twilioNumber  String
   mainTitle     String
   subTitle      String
-  description   String     @db.Text
+  description   String
   heroImage     String
   profileImage  String?
-  galleryImages String     @db.Text
+  galleryImages String
   proId         String
   pro           ProProfile @relation(fields: [proId], references: [id])
   createdAt     DateTime   @default(now())

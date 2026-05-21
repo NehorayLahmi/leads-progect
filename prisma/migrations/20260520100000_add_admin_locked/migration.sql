@@ -1,1 +1,0 @@
-ALTER TABLE `ProProfile` ADD COLUMN `adminLocked` BOOLEAN NOT NULL DEFAULT false;

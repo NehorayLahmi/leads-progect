@@ -1,12 +1,13 @@
 import express, { Application, Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import { config } from "./config/env";
 import router from "./routes";
 import cors from "cors";
 const app: Application = express();
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:3000",

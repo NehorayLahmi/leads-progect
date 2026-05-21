@@ -181,12 +181,15 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
 // GET /api/auth/me
 export const getMe = async (req: Request, res: Response): Promise<void> => {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) {
+  const token =
+    req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7)
+      : (req.cookies as Record<string, string>)?.auth_token;
+
+  if (!token) {
     res.status(401).json({ message: "נדרשת אימות" });
     return;
   }
-  const token = auth.slice(7);
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string; proProfileId?: string };
     const user = await prisma.user.findUnique({

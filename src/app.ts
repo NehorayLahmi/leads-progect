@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import { config } from "./config/env";
 import router from "./routes";
 import cors from "cors";
+import { ensureAdminExists } from "./config/bootstrap";
 const app: Application = express();
 
 app.use(express.json());
@@ -39,8 +40,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await ensureAdminExists();
 });
 
 export default app;

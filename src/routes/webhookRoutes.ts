@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { handleIncomingCall, handleCallStatus } from "../controllers/webhookController";
+import { logCallClick } from "../controllers/webhookController";
 
 const router = Router();
 
-// Twilio routing webhook — returns TwiML, called synchronously on call arrival
-router.post("/call", handleIncomingCall);
+// Logs a call attempt when a visitor taps "call now" on a landing page
+router.post("/call-click", logCallClick);
 
-// Twilio post-call callback — logs the call after it ends
-router.post("/call/status", handleCallStatus);
+// ─── TWILIO — מושבת ────────────────────────────────────────────────────────────
+// import { handleIncomingCall, handleCallStatus } from "../controllers/webhookController";
+// router.post("/call", handleIncomingCall);        // TwiML routing webhook
+// router.post("/call/status", handleCallStatus);   // post-call status callback
 
 export default router;

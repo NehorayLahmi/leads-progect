@@ -1,4 +1,5 @@
 import prisma from "../src/config/database";
+declare const process: any; 
 
 async function main() {
   const page = await prisma.landingPage.upsert({

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../config/database";
-import { sendSMS } from "../services/smsService";
 
 interface LeadBody {
   clientName: string;
@@ -37,11 +36,6 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
           proId: pro.id,
         },
       });
-
-      await sendSMS(
-        pro.phone,
-        `שלום ${pro.firstName}, ליד חדש! לקוח: ${clientName}, טלפון: ${clientPhone}, עיר: ${city}, מקצוע: ${profession}. מזהה: ${lead.id}`
-      );
 
       res.status(201).json({
         success: true,

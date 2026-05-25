@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllPros, getProById, updateProStatus } from "../controllers/proController";
+import { getAllPros, getProById, updateProStatus, connectTelegram } from "../controllers/proController";
 import {
   getLandingPagesForPro,
   updateProLandingPage,
@@ -11,6 +11,8 @@ const router = Router();
 router.get("/", getAllPros);
 router.get("/:id", getProById);
 router.patch("/:id", updateProStatus);
+
+router.post("/connect-telegram", isPro, connectTelegram);
 
 // Pro CMS — landing page management (JWT-protected, ownership-enforced)
 router.get("/:proId/landing-pages", isPro, getLandingPagesForPro);

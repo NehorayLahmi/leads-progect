@@ -6,3 +6,6 @@ const router = Router();
 router.get("/:profession/:city", getLandingPage);
 
 export default router;
+
+
+

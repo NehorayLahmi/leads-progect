@@ -414,7 +414,7 @@ export const telegramBroadcast = async (req: Request, res: Response): Promise<vo
 
 // POST /api/admin/telegram/send/:proId
 export const telegramSendToPro = async (req: Request, res: Response): Promise<void> => {
-  const { proId } = req.params;
+  const proId = req.params.proId as string;
   const { message } = req.body as { message?: string };
   if (!message?.trim()) {
     res.status(400).json({ message: "שדה חובה: message" });

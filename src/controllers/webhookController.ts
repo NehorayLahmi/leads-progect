@@ -12,14 +12,14 @@ export const logCallClick = async (req: Request, res: Response): Promise<void> =
     const landingPage = landingPageId
       ? await prisma.landingPage.findUnique({
           where: { id: landingPageId },
-          include: { pro: { select: { id: true, telegramChatId: true } } },
+          include: { pro: { select: { id: true, telegramChatId: true, isActive: true } } },
         })
       : await prisma.landingPage.findFirst({
           where: { twilioNumber: destinationPhone },
-          include: { pro: { select: { id: true, telegramChatId: true } } },
+          include: { pro: { select: { id: true, telegramChatId: true, isActive: true } } },
         });
 
-    const pro   = landingPage?.pro ?? null;
+    const pro   = (landingPage?.pro?.isActive ? landingPage.pro : null) ?? null;
     const proId = pro?.id ?? null;
 
     await prisma.call.create({

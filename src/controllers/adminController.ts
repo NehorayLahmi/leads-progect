@@ -401,7 +401,7 @@ export const telegramBroadcast = async (req: Request, res: Response): Promise<vo
   }
   try {
     const pros = await prisma.proProfile.findMany({
-      where: { telegramChatId: { not: null } },
+      where: { telegramChatId: { not: null }, isActive: true },
       select: { telegramChatId: true },
     });
     await Promise.all(pros.map(p => sendTelegram(p.telegramChatId, message.trim())));

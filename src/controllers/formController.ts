@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/database";
+import { sendTelegram } from "../services/telegramService";
 
 interface LeadBody {
   clientName: string;
@@ -36,6 +37,11 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
           proId: pro.id,
         },
       });
+
+      await sendTelegram(
+        pro.telegramChatId,
+        `🔔 <b>ליד חדש הגיע!</b>\n\n👤 <b>שם לקוח:</b> ${clientName}\n📞 <b>טלפון:</b> ${clientPhone}\n📍 <b>עיר:</b> ${city}\n🛠 <b>שירות:</b> ${profession}`
+      );
 
       res.status(201).json({
         success: true,

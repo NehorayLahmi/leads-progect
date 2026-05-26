@@ -106,3 +106,8 @@ model Call {
   pro              ProProfile? @relation(fields: [proId], references: [id])
   createdAt        DateTime    @default(now())
 }
+
+model Settings {
+  id             String  @id @default("singleton")
+  adminNotifyAll Boolean @default(true)
+}

@@ -15,6 +15,8 @@ import {
   assignLandingPage,
   getAllCallsAdmin,
   getAllLeadsAdmin,
+  getSettings,
+  updateSettings,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -39,5 +41,8 @@ router.patch("/landing-pages/:id/assign", assignLandingPage);
 
 router.get("/calls", getAllCallsAdmin);
 router.get("/leads", getAllLeadsAdmin);
+
+router.get("/settings", getSettings);
+router.patch("/settings", updateSettings);
 
 export default router;

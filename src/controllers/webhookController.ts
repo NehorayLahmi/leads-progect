@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/database";
-import { sendTelegram } from "../services/telegramService";
+import { notifyProAndMaybeAdmin } from "../services/telegramService";
 
 // POST /api/webhook/call-click
 export const logCallClick = async (req: Request, res: Response): Promise<void> => {
@@ -26,7 +26,7 @@ export const logCallClick = async (req: Request, res: Response): Promise<void> =
       data: { callerPhone, destinationPhone, duration: 0, status: "initiated", recordingUrl: null, proId },
     });
 
-    await sendTelegram(
+    await notifyProAndMaybeAdmin(
       pro?.telegramChatId,
       `📞 <b>שיחה נכנסת!</b>\n📱 מתקשר: ${callerPhone || "לא ידוע"}\n☎️ יעד: ${destinationPhone}`
     );

@@ -391,6 +391,41 @@ export const getAllCallsAdmin = async (_req: Request, res: Response): Promise<vo
   }
 };
 
+// GET /api/admin/settings
+export const getSettings = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const settings = await prisma.settings.upsert({
+      where:  { id: "singleton" },
+      update: {},
+      create: { id: "singleton", adminNotifyAll: true },
+    });
+    res.json(settings);
+  } catch (error) {
+    console.error("[admin/settings GET]", error);
+    res.status(500).json({ message: "שגיאת שרת" });
+  }
+};
+
+// PATCH /api/admin/settings
+export const updateSettings = async (req: Request, res: Response): Promise<void> => {
+  const { adminNotifyAll } = req.body as { adminNotifyAll: boolean };
+  if (typeof adminNotifyAll !== "boolean") {
+    res.status(400).json({ message: "שדה חובה: adminNotifyAll (boolean)" });
+    return;
+  }
+  try {
+    const settings = await prisma.settings.upsert({
+      where:  { id: "singleton" },
+      update: { adminNotifyAll },
+      create: { id: "singleton", adminNotifyAll },
+    });
+    res.json(settings);
+  } catch (error) {
+    console.error("[admin/settings PATCH]", error);
+    res.status(500).json({ message: "שגיאת שרת" });
+  }
+};
+
 // GET /api/admin/leads
 export const getAllLeadsAdmin = async (_req: Request, res: Response): Promise<void> => {
   try {

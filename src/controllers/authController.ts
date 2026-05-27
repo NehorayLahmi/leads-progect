@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../config/database";
 import { sendEmail } from "../services/emailService";
+import { sanitize, isValidEmail, isValidPhone, isValidName, isValidPassword } from "../utils/validate";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "fallback_dev_secret_change_me";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "7d";
@@ -22,19 +23,34 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     profession: string;
   };
 
-  if (!email || !password || !firstName || !lastName || !phone || !city || !profession) {
-    res.status(400).json({
-      message: "שדות חסרים: email, password, firstName, lastName, phone, city, profession הם שדות חובה",
-    });
+  const emailClean = sanitize(email ?? "").toLowerCase();
+  const firstClean = sanitize(firstName ?? "");
+  const lastClean  = sanitize(lastName  ?? "");
+  const phoneClean = sanitize(phone     ?? "");
+
+  if (!emailClean || !password || !firstClean || !lastClean || !phoneClean || !city || !profession) {
+    res.status(400).json({ message: "שדות חסרים: email, password, firstName, lastName, phone, city, profession הם שדות חובה" });
     return;
   }
-  if (password.length < 6) {
-    res.status(400).json({ message: "הסיסמה חייבת להכיל לפחות 6 תווים" });
+  if (!isValidEmail(emailClean)) {
+    res.status(400).json({ message: "כתובת אימייל לא תקינה" });
+    return;
+  }
+  if (!isValidPassword(password)) {
+    res.status(400).json({ message: "הסיסמה חייבת להכיל בין 6 ל-100 תווים" });
+    return;
+  }
+  if (!isValidName(firstClean) || !isValidName(lastClean)) {
+    res.status(400).json({ message: "שם לא תקין — יש להזין שם בעברית או באנגלית בלבד (2–50 תווים)" });
+    return;
+  }
+  if (!isValidPhone(phoneClean)) {
+    res.status(400).json({ message: "מספר טלפון לא תקין — יש להזין מספר ישראלי תקני (לדוגמה: 050-1234567)" });
     return;
   }
 
   try {
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email: emailClean } });
     if (existing) {
       res.status(409).json({ message: "כתובת האימייל כבר רשומה במערכת" });
       return;
@@ -44,11 +60,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: emailClean,
         passwordHash,
         role: "PRO",
         proProfile: {
-          create: { firstName, lastName, phone, city, profession },
+          create: { firstName: firstClean, lastName: lastClean, phone: phoneClean, city, profession },
         },
       },
       select: {
@@ -73,14 +89,20 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body as { email: string; password: string };
 
-  if (!email || !password) {
+  const emailClean = sanitize(email ?? "").toLowerCase();
+
+  if (!emailClean || !password) {
     res.status(400).json({ message: "שדות חסרים: email ו-password הם שדות חובה" });
+    return;
+  }
+  if (!isValidEmail(emailClean)) {
+    res.status(400).json({ message: "כתובת אימייל לא תקינה" });
     return;
   }
 
   try {
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: emailClean },
       include: { proProfile: { select: { id: true, firstName: true, lastName: true, profession: true, city: true } } },
     });
 

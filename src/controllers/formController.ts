@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/database";
 import { notifyProAndMaybeAdmin } from "../services/telegramService";
+import { sanitize, isValidName, isValidPhone } from "../utils/validate";
 
 interface LeadBody {
   clientName: string;
@@ -13,10 +14,19 @@ interface LeadBody {
 export const handleFormLead = async (req: Request, res: Response): Promise<void> => {
   const { clientName, clientPhone, city, profession } = req.body as LeadBody;
 
-  if (!clientName || !clientPhone || !city || !profession) {
-    res.status(400).json({
-      message: "שדות חסרים: clientName, clientPhone, city, profession הם שדות חובה",
-    });
+  const name  = sanitize(clientName  ?? "");
+  const phone = sanitize(clientPhone ?? "");
+
+  if (!name || !phone || !city || !profession) {
+    res.status(400).json({ message: "שדות חסרים: clientName, clientPhone, city, profession הם שדות חובה" });
+    return;
+  }
+  if (!isValidName(name)) {
+    res.status(400).json({ message: "שם לא תקין — יש להזין שם מלא בעברית או באנגלית (2–50 תווים)" });
+    return;
+  }
+  if (!isValidPhone(phone)) {
+    res.status(400).json({ message: "מספר טלפון לא תקין — יש להזין מספר ישראלי תקני (לדוגמה: 050-1234567)" });
     return;
   }
 
@@ -29,8 +39,8 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
     if (pro) {
       const lead = await prisma.lead.create({
         data: {
-          clientName,
-          clientPhone,
+          clientName: name,
+          clientPhone: phone,
           city,
           profession,
           status: "ASSIGNED",
@@ -40,7 +50,7 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
 
       await notifyProAndMaybeAdmin(
         pro.telegramChatId,
-        `🔔 <b>ליד חדש הגיע!</b>\n\n👤 <b>שם לקוח:</b> ${clientName}\n📞 <b>טלפון:</b> ${clientPhone}\n📍 <b>עיר:</b> ${city}\n🛠 <b>שירות:</b> ${profession}`
+        `🔔 <b>ליד חדש הגיע!</b>\n\n👤 <b>שם לקוח:</b> ${name}\n📞 <b>טלפון:</b> ${phone}\n📍 <b>עיר:</b> ${city}\n🛠 <b>שירות:</b> ${profession}`
       );
 
       res.status(201).json({
@@ -52,8 +62,8 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
     } else {
       const lead = await prisma.lead.create({
         data: {
-          clientName,
-          clientPhone,
+          clientName: name,
+          clientPhone: phone,
           city,
           profession,
           status: "NEW",
@@ -64,7 +74,7 @@ export const handleFormLead = async (req: Request, res: Response): Promise<void>
       console.log(`[ליד לא משויך] לא נמצא נציג פעיל עבור "${profession}" ב-"${city}". מזהה ליד: ${lead.id}`);
       await notifyProAndMaybeAdmin(
         null,
-        `⚠️ <b>ליד לא משויך!</b>\n\n👤 <b>שם לקוח:</b> ${clientName}\n📞 <b>טלפון:</b> ${clientPhone}\n📍 <b>עיר:</b> ${city}\n🛠 <b>שירות:</b> ${profession}\n\nאין נציג פעיל — יש לטפל ידנית.`
+        `⚠️ <b>ליד לא משויך!</b>\n\n👤 <b>שם לקוח:</b> ${name}\n📞 <b>טלפון:</b> ${phone}\n📍 <b>עיר:</b> ${city}\n🛠 <b>שירות:</b> ${profession}\n\nאין נציג פעיל — יש לטפל ידנית.`
       );
 
       res.status(201).json({

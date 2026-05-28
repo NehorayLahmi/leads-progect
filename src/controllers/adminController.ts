@@ -376,6 +376,22 @@ export const assignLandingPage = async (req: Request, res: Response): Promise<vo
   }
 };
 
+// DELETE /api/admin/landing-pages/:id
+export const deleteLandingPage = async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+  try {
+    await prisma.landingPage.delete({ where: { id } });
+    res.json({ message: "דף הנחיתה נמחק בהצלחה" });
+  } catch (error: unknown) {
+    if ((error as { code?: string }).code === "P2025") {
+      res.status(404).json({ message: "דף נחיתה לא נמצא" });
+      return;
+    }
+    console.error("[admin/landing-pages delete]", error);
+    res.status(500).json({ message: "שגיאת שרת" });
+  }
+};
+
 // GET /api/admin/calls
 export const getAllCallsAdmin = async (_req: Request, res: Response): Promise<void> => {
   try {

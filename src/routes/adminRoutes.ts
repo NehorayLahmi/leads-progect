@@ -13,6 +13,7 @@ import {
   createLandingPage,
   getAllLandingPages,
   assignLandingPage,
+  deleteLandingPage,
   getAllCallsAdmin,
   getAllLeadsAdmin,
   getSettings,
@@ -40,6 +41,7 @@ router.delete("/pros/:id", deletePro);
 router.post("/landing-pages", createLandingPage);
 router.get("/landing-pages", getAllLandingPages);
 router.patch("/landing-pages/:id/assign", assignLandingPage);
+router.delete("/landing-pages/:id", deleteLandingPage);
 
 router.get("/calls", getAllCallsAdmin);
 router.get("/leads", getAllLeadsAdmin);

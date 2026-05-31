@@ -303,6 +303,8 @@ export const createLandingPage = async (req: Request, res: Response): Promise<vo
     return;
   }
 
+  const isDraft = Boolean((req.body as { isDraft?: boolean }).isDraft);
+
   try {
     const pro = await prisma.proProfile.findUnique({ where: { id: proId } });
     if (!pro) {
@@ -322,6 +324,7 @@ export const createLandingPage = async (req: Request, res: Response): Promise<vo
         heroImage: heroImage ?? "",
         profileImage: profileImage ?? null,
         galleryImages: galleryImages ?? "[]",
+        isDraft,
       },
     });
     res.status(201).json(page);
@@ -482,6 +485,24 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
     res.json(settings);
   } catch (error) {
     console.error("[admin/settings PATCH]", error);
+    res.status(500).json({ message: "שגיאת שרת" });
+  }
+};
+
+// PATCH /api/admin/landing-pages/:id/draft
+export const toggleDraftLandingPage = async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+  try {
+    const page = await prisma.landingPage.findUnique({ where: { id }, select: { isDraft: true } });
+    if (!page) { res.status(404).json({ message: "דף נחיתה לא נמצא" }); return; }
+    const updated = await prisma.landingPage.update({
+      where: { id },
+      data: { isDraft: !page.isDraft },
+      select: { id: true, isDraft: true },
+    });
+    res.json(updated);
+  } catch (error) {
+    console.error("[admin/landing-pages draft toggle]", error);
     res.status(500).json({ message: "שגיאת שרת" });
   }
 };

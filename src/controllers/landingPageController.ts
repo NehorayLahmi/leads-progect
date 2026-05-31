@@ -4,6 +4,7 @@ import prisma from "../config/database";
 export const listLandingPageSlugs = async (_req: Request, res: Response): Promise<void> => {
   try {
     const pages = await prisma.landingPage.findMany({
+      where: { isDraft: false },
       select: { city: true, profession: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
     });

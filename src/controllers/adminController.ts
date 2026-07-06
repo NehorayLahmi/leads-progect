@@ -304,6 +304,8 @@ export const createLandingPage = async (req: Request, res: Response): Promise<vo
   }
 
   const isDraft = Boolean((req.body as { isDraft?: boolean }).isDraft);
+  const normalizedCity       = city.trim().toLowerCase().replace(/\s+/g, "-");
+  const normalizedProfession = profession.trim().toLowerCase().replace(/\s+/g, "-");
 
   try {
     const pro = await prisma.proProfile.findUnique({ where: { id: proId } });
@@ -318,8 +320,8 @@ export const createLandingPage = async (req: Request, res: Response): Promise<vo
         subTitle: subTitle ?? "",
         description: description ?? "",
         twilioNumber,
-        city,
-        profession,
+        city: normalizedCity,
+        profession: normalizedProfession,
         proId,
         heroImage: heroImage ?? "",
         profileImage: profileImage ?? null,

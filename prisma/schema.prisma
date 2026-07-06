@@ -96,6 +96,11 @@ model LandingPage {
   @@unique([city, profession])
 }
 
+enum CallType {
+  PHONE
+  WHATSAPP
+}
+
 model Call {
   id               String      @id @default(uuid())
   callerPhone      String
@@ -103,6 +108,7 @@ model Call {
   duration         Int         @default(0)
   status           String
   recordingUrl     String?
+  type             CallType    @default(PHONE)
   proId            String?
   pro              ProProfile? @relation(fields: [proId], references: [id])
   createdAt        DateTime    @default(now())

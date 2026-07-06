@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { logCallClick } from "../controllers/webhookController";
+import { logCallClick, logWhatsAppClick } from "../controllers/webhookController";
 
 const router = Router();
 
 router.post("/call-click", logCallClick);
+router.post("/whatsapp-click", logWhatsAppClick);
 
 export default router;
